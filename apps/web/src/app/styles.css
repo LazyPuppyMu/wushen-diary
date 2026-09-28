@@ -1,0 +1,210 @@
+:root {
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: #222824;
+  background: #f7f7f2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --ink: #222824;
+  --muted: #737b75;
+  --line: #dfe3dc;
+  --green: #3e725a;
+  --paper: #fffefa;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button, textarea { font: inherit; }
+
+.shell { min-height: 100vh; }
+
+.topbar {
+  height: 64px;
+  padding: 0 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 254, 250, 0.72);
+}
+
+.brand {
+  color: var(--ink);
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 23px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.local-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.local-status span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6e9b70;
+}
+
+.workspace {
+  width: min(100% - 40px, 1020px);
+  margin: 0 auto;
+  padding: 58px 0 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  align-items: start;
+  gap: 64px;
+}
+
+.section-heading {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+}
+
+.eyebrow { margin: 0 0 11px; color: var(--green); font-size: 13px; }
+h1, h2, p { margin-top: 0; }
+
+h1 {
+  margin-bottom: 0;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 27px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.today-label { padding-bottom: 3px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+.date-field {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.date-field input {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+textarea {
+  width: 100%;
+  min-height: 250px;
+  padding: 18px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  outline-color: var(--green);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.8;
+}
+
+textarea::placeholder { color: #a2a8a1; }
+
+.composer-footer {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.save-status { color: var(--muted); font-size: 12px; }
+
+.save-button {
+  min-height: 38px;
+  padding: 0 18px;
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  color: white;
+  background: var(--green);
+}
+
+.save-button:hover { background: #315b46; }
+.entries { padding-top: 7px; }
+
+.entries-heading {
+  min-height: 39px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+
+.entries-heading h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.entries-heading span { color: var(--muted); font-size: 12px; }
+.empty-state { padding: 20px 0; color: #909790; font-size: 13px; }
+.entry-list { margin: 0; padding: 0; list-style: none; }
+
+.entry { padding: 17px 0 20px; border-bottom: 1px solid var(--line); }
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.entry-meta time { color: var(--muted); font-size: 12px; }
+
+.delete-button {
+  padding: 4px 0 4px 8px;
+  border: 0;
+  color: #8a625c;
+  background: transparent;
+  font-size: 12px;
+}
+
+.delete-button:hover { color: #6c3c36; }
+
+.entry p {
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+  color: #343b36;
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 760px) {
+  .topbar { height: 58px; padding: 0 20px; }
+  .workspace {
+    width: min(100% - 40px, 600px);
+    padding-top: 38px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  h1 { font-size: 25px; }
+  textarea { min-height: 210px; }
+}
