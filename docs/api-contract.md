@@ -32,6 +32,6 @@ The browser owns diary storage. `POST /v1/organize` receives only entries the us
 
 Allowed categories: `joy`, `fulfillment`, `reflection`, `improvement`, `gratitude`, `weight`, `murmur`. Conclusion `type` is `fact` or `inference`; confidence is `high`, `medium`, `low`, or `insufficient`.
 
-The model supplies `entry_id` and an exact `quote` only. The API finds the quote in the submitted content, calculates `start` and `end`, and rejects the result if the entry or quote cannot be found. The browser checks the returned range against its original local entry before showing a conclusion.
+The model supplies `entry_id` and an exact `quote` only. The API finds the quote in the submitted content, calculates `start` and `end`, and rejects the result if the entry or quote cannot be found. The browser checks the returned range against its original local entry before showing a conclusion. AI JSON or upstream failures return an error response and never become placeholder conclusions.
 
-`GET /health` is available without AI configuration. Until the real provider and quote validator are implemented, `POST /v1/organize` returns `503`; it never returns pretend AI content.
+`GET /health` is available without AI configuration. `POST /v1/organize` returns `503` when `DASHSCOPE_API_KEY` is missing, `504` when the provider times out, and `502` for an unusable provider response or invalid evidence. It never returns pretend AI content.
