@@ -62,6 +62,11 @@ def main() -> None:
     assert len(cases) >= 10, "At least 10 fictional cases are required"
     case_ids = [case["id"] for case in cases]
     assert len(case_ids) == len(set(case_ids)), "Duplicate case IDs"
+    over_limit = next((case for case in cases if case["id"] == "over-limit-content"), None)
+    assert over_limit is not None, "over-limit-content case is required"
+    assert any(
+        len(entry["content"]) > 10000 for entry in over_limit["entries"]
+    ), "over-limit-content must exceed the 10,000-character limit"
     for case in cases:
         check_case(case)
 

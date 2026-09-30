@@ -6,7 +6,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
-| `cases.json` | 13 个虚构案例的原文、人工参考行为，以及故意无效的模型输出样本 |
+| `cases.json` | 14 个虚构案例的原文、人工参考行为，以及故意无效的模型输出样本 |
 | `demo-entries.json` | 三个可手动输入浏览器的虚构日记；没有预写 AI 结果 |
 | `check_assets.py` | 离线复核输入 schema、精确引用、拒绝行为和 emoji code point 位置；不发请求 |
 
@@ -35,6 +35,7 @@ git diff --check
 | `negative-emotion` | 真实模型人工评测 + 自检 | 保留沮丧，不能凭空生成积极成长 |
 | `empty-content` | 输入自检 + 后端 pytest | 空原文被拒绝；不尝试从页面自动发送无效记录 |
 | `long-content` | 真实模型人工评测 + 自检 | 较长但合法的原文能准确引用；超过 10,000 字由 `test_organize_rejects_entry_content_over_limit` 单独验证 |
+| `over-limit-content` | 输入自检 + 后端 schema | 超过 10,000 字的原文被拒绝，不发送给整理服务 |
 | `repeated-quote` | 自检 + validator pytest | 同一 quote 多次出现，服务端使用第一次位置 |
 | `missing-quote` | 注入样本自检 + 路由 pytest | 原文没有该 quote，拒绝整个正常结果 |
 | `wrong-entry-id` | 注入样本自检 + validator pytest | 未提交的记录 ID 被拒绝 |
