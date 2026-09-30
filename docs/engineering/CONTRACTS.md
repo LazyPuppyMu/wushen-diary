@@ -45,6 +45,7 @@
 
 ```json
 {
+  "consent": true,
   "entries": [
     {
       "id": "entry_01J00000000000000000000000",
@@ -59,9 +60,10 @@
 
 | 字段 | 类型 | 规则 |
 |---|---|---|
-| `entries` | SelectedEntry[] | 至少一个用户选中的记录快照；只包含本次确认的内容 |
+| `consent` | `true` | 必填且只能为 `true`；表示用户已对本次请求作出明确确认 |
+| `entries` | SelectedEntry[] | 1–20 个用户选中的记录快照；只包含本次确认的内容 |
 
-网关是无状态服务，不根据 ID 访问本地数据库，因此请求体必须携带经过用户确认的记录快照。当前远程代码的请求模型只包含 `entries`；“用户已明确确认”是前端发送请求前必须满足的交互前置条件，不通过当前请求字段传递。网关只处理 `entries` 中的内容，不接收未选中的本地记录；请求结束后不把这些内容写入长期数据库。若要把确认时间或确认标记加入 API，必须先新增决策记录并同步前后端。
+网关是无状态服务，不根据 ID 访问本地数据库，因此请求体必须携带经过用户确认的记录快照。前端只有在用户明确确认后才能发送请求；网关同时要求 `consent` 为 `true`，缺失或为 `false` 都会被拒绝。该字段是本次请求的确认声明，不替代前端确认交互，也不包含确认时间。网关只处理 `entries` 中的内容，不接收未选中的本地记录；请求结束后不把这些内容写入长期数据库。
 
 ### `SelectedEntry`
 
@@ -73,7 +75,7 @@
 }
 ```
 
-`SelectedEntry` 的字段名和含义与 `JournalEntry` 保持一致，但它是本次用户确认后发送的请求快照，不代表网关拥有该记录的所有权。
+`SelectedEntry` 的字段名和含义与 `JournalEntry` 保持一致，但它是本次用户确认后发送的请求快照，不代表网关拥有该记录的所有权。API 限制 `id` 为 1–100 个字符，`date` 为有效的 `YYYY-MM-DD` 日期，`content` 为 1–10,000 个字符且不能全为空白；拒绝校验不会改写原文。
 
 ## 4. AI 整理结果
 
@@ -118,7 +120,7 @@
 }
 ```
 
-`category` 的初始允许值为：`joy`、`fulfillment`、`reflection`、`improvement`、`gratitude`、`weight`、`murmur`。`type` 允许 `fact` 或 `inference`；`confidence` 允许 `high`、`medium`、`low` 或 `insufficient`。
+`category` 的初始允许值为：`joy`、`fulfillment`、`reflection`、`improvement`、`gratitude`、`weight`、`murmur`。`type` 允许 `fact` 或 `inference`；`confidence` 允许 `high`、`medium`、`low` 或 `insufficient`。`text` 长度为 1–500 个字符；每条结论必须包含至少一条证据。
 
 ### `Evidence`
 
@@ -132,6 +134,8 @@
 ```
 
 模型只返回 `entry_id` 和精确的 `quote`；服务端根据提交内容计算 `start` 和 `end`。找不到对应记录或精确引用时拒绝结果。浏览器还要用自己的本地原文复核范围后才能展示结论。
+
+`entry_id` 为 1–100 个字符，`quote` 非空，`start` 不小于 0，`end` 不小于 1。偏移量单位和多字节文本的范围定义仍按后续来源校验决策处理。
 
 ## 5. 错误契约
 
@@ -158,6 +162,8 @@
 | `EVIDENCE_VALIDATION_FAILED` | 结果无法回指原文 | true |
 | `INTERNAL_ERROR` | 未分类的服务错误 | false |
 
+这组 `ErrorResponse` 错误码是统一错误结构。当前 Pydantic 请求校验由 FastAPI 返回 HTTP 422 默认 `detail` 结构；AI 未配置时端点返回 HTTP 503 默认 `detail` 结构。两者都是 AI 网关完善前的临时行为，尚未映射为 `ErrorResponse`。
+
 错误发生时，前端必须保留原始本地记录，并向用户展示可理解的状态。不得用错误结果覆盖已保存的原始内容。
 
 ## 6. API 边界示例
@@ -166,13 +172,14 @@
 
 ```text
 POST /v1/organize
-Request: 经过用户确认的 SelectedEntry[]
+Request: {"consent": true, "entries": [经过用户确认的 SelectedEntry]}
 Response 200: OrganizeResponse
-Response 4xx: INVALID_INPUT 或 CONSENT_REQUIRED
-Response 5xx: UPSTREAM_*、INVALID_MODEL_OUTPUT 或 INTERNAL_ERROR
+Response 422: FastAPI 当前的默认请求校验错误；缺失/false consent 或无效字段均被拒绝
+Response 503: AI 尚未配置时当前的默认 detail 响应（临时例外，不返回整理结果）
+Response 5xx: AI 配置后的 UPSTREAM_*、INVALID_MODEL_OUTPUT 或 INTERNAL_ERROR
 ```
 
-以上是接口契约示例。FastAPI 实现后，实际 OpenAPI 输出、Pydantic 模型和前端生成类型必须与本文件核对；若发生差异，先更新契约或新增决策记录。
+FastAPI 实现后，实际 OpenAPI 输出、Pydantic 模型和前端生成类型必须与本文件核对；若发生差异，先更新契约或新增决策记录。
 
 ## 7. 版本和兼容规则
 
