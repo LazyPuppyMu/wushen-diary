@@ -285,6 +285,32 @@
       }
     },
     {
+      "id": "emoji-quote-position",
+      "entries": [
+        {
+          "id": "entry-emoji",
+          "date": "2026-09-28",
+          "content": "🌈今天很开心🌈。"
+        }
+      ],
+      "expected": {
+        "behavior": "emit",
+        "items": [
+          {
+            "category": "joy",
+            "type": "fact",
+            "text": "今天感到开心。",
+            "confidence": "high",
+            "evidence": [{"entry_id": "entry-emoji", "quote": "今天很开心🌈"}]
+          }
+        ],
+        "evidence_ranges": [
+          {"entry_id": "entry-emoji", "quote": "今天很开心🌈", "start": 1, "end": 7}
+        ],
+        "validation_note": "evidence_ranges 是离线校验预期，不是模型输出。后端 code point 范围是 [1, 7)，浏览器 UTF-16 范围是 [2, 9)。"
+      }
+    },
+    {
       "id": "insufficient-no-generation",
       "entries": [
         {
