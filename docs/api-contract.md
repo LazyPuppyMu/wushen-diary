@@ -37,4 +37,6 @@ Allowed categories: `joy`, `fulfillment`, `reflection`, `improvement`, `gratitud
 
 The model supplies `entry_id` and an exact `quote` only. The API finds the quote in the submitted content, calculates `start` and `end`, and rejects the result if the entry or quote cannot be found. The browser checks the returned range against its original local entry before showing a conclusion. AI JSON or upstream failures return an error response and never become placeholder conclusions.
 
+`start` and `end` are zero-based Unicode code point positions in the original `content`, with `end` exclusive. Python calculates them with `str.find()` and `len()`. JavaScript string indices use UTF-16 code units, so the browser must validate and locate quotes by code point when content contains characters such as emoji, converting to UTF-16 positions only for DOM or string operations that require them.
+
 `GET /health` is available without AI configuration. `POST /v1/organize` returns `503` when `DASHSCOPE_API_KEY` is missing, `504` when the provider times out, and `502` for an unusable provider response or invalid evidence. It never returns pretend AI content.

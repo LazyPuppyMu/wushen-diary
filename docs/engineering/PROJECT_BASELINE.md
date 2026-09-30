@@ -46,5 +46,5 @@
 
 ## 已知风险
 
-- Python `str.find()` 返回按 Unicode code point 计数的位置，而浏览器 JavaScript `slice()` 使用 UTF-16 索引。包含 emoji 等非 BMP 字符时，后端 `start/end` 与浏览器定位可能不一致。
-- 该风险需要前端和后端共同决定契约策略；本次文档任务只记录，不修改接口或实现。
+- Python `str.find()` 返回按 Unicode code point 计数的位置，而浏览器 JavaScript `slice()` 使用 UTF-16 索引。包含 emoji 等非 BMP 字符时，当前浏览器校验函数尚不能正确定位后端 `start/end`。
+- 已批准保持后端 code point 位置语义，并由前端在后续任务中实现按 code point 复核与定位；含 emoji 的引用测试通过前，不能把该流程视为完成。
