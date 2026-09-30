@@ -299,6 +299,7 @@ textarea::placeholder { color: #a2a8a1; }
 }
 
 @media (max-width: 420px) {
+  body { min-width: 0; }
   .entries-heading { align-items: flex-start; }
   .entries-heading > div:first-child { flex-wrap: wrap; }
   .organize-bar { align-items: flex-start; flex-direction: column; }
