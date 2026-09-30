@@ -87,6 +87,7 @@ export default function App() {
   const [status, setStatus] = useState("");
   const entryElements = useRef(new Map<string, HTMLLIElement>());
   const requestGate = useRef(createRequestGate());
+  const isChangingEntries = useRef(false);
 
   const selectionSummary = getSelectionSummary(entries, selectedIds);
   const visibleEntries = filterEntriesByDate(entries, fromDate, toDate);
@@ -131,26 +132,37 @@ export default function App() {
   }
 
   async function deleteEntry(entry: DiaryEntry) {
-    if (isOrganizing || !window.confirm("删除这条日记？此操作无法撤销。")) return;
-    await db.entries.delete(entry.id);
-    setOrganizeResult(null);
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      next.delete(entry.id);
-      return next;
-    });
-    setStatus("记录已删除");
-    await refreshEntries();
+    if (isChangingEntries.current || isOrganizing || !window.confirm("删除这条日记？此操作无法撤销。")) return;
+    isChangingEntries.current = true;
+    requestGate.current.invalidate();
+    try {
+      await db.entries.delete(entry.id);
+      setOrganizeResult(null);
+      setSelectedIds((current) => {
+        const next = new Set(current);
+        next.delete(entry.id);
+        return next;
+      });
+      setStatus("记录已删除");
+      await refreshEntries();
+    } finally {
+      isChangingEntries.current = false;
+    }
   }
 
   async function clearEntries() {
-    if (entries.length === 0 || isOrganizing || !window.confirm("清空此设备上的全部日记？此操作无法撤销。")) return;
+    if (entries.length === 0 || isChangingEntries.current || isOrganizing || !window.confirm("清空此设备上的全部日记？此操作无法撤销。")) return;
+    isChangingEntries.current = true;
     requestGate.current.invalidate();
-    await db.entries.clear();
-    setSelectedIds(new Set());
-    setOrganizeResult(null);
-    setStatus("已清空此设备上的全部日记");
-    await refreshEntries();
+    try {
+      await db.entries.clear();
+      setSelectedIds(new Set());
+      setOrganizeResult(null);
+      setStatus("已清空此设备上的全部日记");
+      await refreshEntries();
+    } finally {
+      isChangingEntries.current = false;
+    }
   }
 
   async function exportEntries() {
@@ -167,7 +179,7 @@ export default function App() {
 
   async function organizeSelectedEntries() {
     const selectedEntries = entries.filter((entry) => selectedIds.has(entry.id));
-    if (selectedEntries.length === 0 || selectedEntries.length > 20 || isOrganizing) return;
+    if (selectedEntries.length === 0 || selectedEntries.length > 20 || isChangingEntries.current || isOrganizing) return;
 
     setStatus("");
     setOrganizeResult(null);
