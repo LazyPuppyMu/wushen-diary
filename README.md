@@ -25,6 +25,7 @@ npm run dev:web
 ```powershell
 Set-Location apps/api
 uv sync --cache-dir ..\.uv-cache
+if (-not (Test-Path .env)) { Copy-Item ..\..\.env.example .env }
 uv run --cache-dir ..\.uv-cache uvicorn app.main:app --env-file .env --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -47,9 +48,12 @@ uv run --cache-dir ..\.uv-cache pytest tests
 apps/web/       React 前端
 apps/api/       FastAPI 后端
 docs/           接口和产品约定
+docs/engineering/ 工程基线、协作手册、契约维护和比赛版路线
 eval/           AI 评测样例与规则
 ```
 
 整理请求字段与证据校验规则见 [docs/api-contract.md](docs/api-contract.md)。
 
 团队分工、分支规范、首次启动和提交前检查见 [docs/team-workflow.md](docs/team-workflow.md)。
+
+工程任务开始顺序、当前基线和人工/AI 协作边界见 [docs/engineering/PROJECT_BASELINE.md](docs/engineering/PROJECT_BASELINE.md)、[docs/engineering/AI_PLAYBOOK.md](docs/engineering/AI_PLAYBOOK.md) 和 [docs/engineering/HUMAN_PLAYBOOK.md](docs/engineering/HUMAN_PLAYBOOK.md)。公共契约维护规则见 [docs/engineering/CONTRACTS.md](docs/engineering/CONTRACTS.md)，短期演示路线见 [docs/engineering/ROADMAP.md](docs/engineering/ROADMAP.md)。
