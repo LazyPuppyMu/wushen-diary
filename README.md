@@ -25,6 +25,7 @@ npm run dev:web
 ```powershell
 Set-Location apps/api
 uv sync --cache-dir ..\.uv-cache
+if (-not (Test-Path .env)) { Copy-Item ..\..\.env.example .env }
 uv run --cache-dir ..\.uv-cache uvicorn app.main:app --env-file .env --reload --host 127.0.0.1 --port 8000
 ```
 
