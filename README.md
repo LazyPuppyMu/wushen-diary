@@ -7,7 +7,7 @@
 - React、TypeScript、Vite、PWA 前端骨架。
 - FastAPI 后端骨架和 `/health` 检查。
 - `/v1/organize` 请求/响应模型及接口草案。
-- AI 尚未接入；整理接口会返回 `503`，不会伪造整理结果。
+- 后端已接入 Qwen 配置、JSON 解析和原文引用校验；未配置 API key 时整理接口返回 `503`，不会伪造整理结果。
 
 ## 启动
 
@@ -25,8 +25,10 @@ npm run dev:web
 ```powershell
 Set-Location apps/api
 uv sync --cache-dir ..\.uv-cache
-uv run --cache-dir ..\.uv-cache uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uv run --cache-dir ..\.uv-cache uvicorn app.main:app --env-file .env --reload --host 127.0.0.1 --port 8000
 ```
+
+配置后端前，将根目录的 `.env.example` 复制为 `apps/api/.env`，填写 `DASHSCOPE_API_KEY`；可按需调整 `QWEN_MODEL`、`QWEN_TIMEOUT_SECONDS` 和 `WEB_ORIGINS`。API 不保存日记内容，也不记录 Prompt 或模型输出。
 
 前端默认运行在 `http://localhost:5173`，后端运行在 `http://127.0.0.1:8000`。后端健康检查：`http://127.0.0.1:8000/health`。
 

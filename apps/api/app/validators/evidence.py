@@ -1,35 +1,82 @@
 from collections.abc import Mapping, Sequence
+from typing import Any, overload
 
 from app.schemas.organize import EntryInput, Evidence
 
 
 class EvidenceValidationError(ValueError):
-    """Raised when model evidence cannot be tied to a submitted entry."""
+    """Raised when an AI-provided evidence item cannot be verified."""
+
+
+@overload
+def validate_evidence(
+    entries: Sequence[EntryInput], evidence: Mapping[str, Any]
+) -> Evidence: ...
+
+
+@overload
+def validate_evidence(
+    entries: Sequence[EntryInput], evidence: Sequence[Evidence | Mapping[str, Any]]
+) -> list[Evidence]: ...
 
 
 def validate_evidence(
-    entries: Sequence[EntryInput], raw_evidence: Mapping[str, object]
-) -> Evidence:
-    """Build trusted evidence offsets from the submitted entry content."""
-    entry_id = raw_evidence.get("entry_id")
-    if not isinstance(entry_id, str) or not entry_id:
-        raise EvidenceValidationError("entry_id must be a non-empty string")
+    entries: Sequence[EntryInput],
+    evidence: Mapping[str, Any] | Sequence[Evidence | Mapping[str, Any]],
+) -> Evidence | list[Evidence]:
+    """Calculate trusted evidence offsets from submitted entry content.
 
-    submitted_entry = next((entry for entry in entries if entry.id == entry_id), None)
-    if submitted_entry is None:
-        raise EvidenceValidationError(f"entry_id '{entry_id}' was not submitted")
+    A single mapping is supported for the original validator API. Model
+    conclusions use a sequence and receive one validated model per item.
+    Any supplied ``start`` or ``end`` values are ignored.
+    """
 
-    quote = raw_evidence.get("quote")
-    if not isinstance(quote, str) or not quote:
-        raise EvidenceValidationError("quote must be a non-empty string")
+    is_single = isinstance(evidence, Mapping)
+    items = [evidence] if is_single else evidence
+    entries_by_id = {entry.id: entry for entry in entries}
+    validated: list[Evidence] = []
 
-    start = submitted_entry.content.find(quote)
-    if start < 0:
-        raise EvidenceValidationError(f"quote was not found in entry '{entry_id}'")
+    for index, item in enumerate(items):
+        entry_id, quote = _read_evidence_item(item, index)
 
-    return Evidence(
-        entry_id=entry_id,
-        quote=quote,
-        start=start,
-        end=start + len(quote),
+        if not isinstance(entry_id, str) or entry_id not in entries_by_id:
+            raise EvidenceValidationError(
+                f"evidence[{index}]: entry_id {entry_id!r} was not submitted"
+            )
+
+        if not isinstance(quote, str) or not quote:
+            raise EvidenceValidationError(
+                f"evidence[{index}]: quote must be a non-empty string"
+            )
+
+        content = entries_by_id[entry_id].content
+        start = content.find(quote)
+        if start == -1:
+            raise EvidenceValidationError(
+                f"evidence[{index}]: quote was not found in entry {entry_id!r}"
+            )
+
+        validated.append(
+            Evidence(
+                entry_id=entry_id,
+                quote=quote,
+                start=start,
+                end=start + len(quote),
+            )
+        )
+
+    return validated[0] if is_single else validated
+
+
+def _read_evidence_item(
+    item: Evidence | Mapping[str, Any], index: int
+) -> tuple[Any, Any]:
+    if isinstance(item, Evidence):
+        return item.entry_id, item.quote
+
+    if isinstance(item, Mapping):
+        return item.get("entry_id"), item.get("quote")
+
+    raise EvidenceValidationError(
+        f"evidence[{index}]: expected an Evidence object or mapping"
     )
