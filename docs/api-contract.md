@@ -6,11 +6,14 @@ The browser owns diary storage. `POST /v1/organize` receives only entries the us
 
 ```json
 {
+  "consent": true,
   "entries": [
     { "id": "entry-1", "date": "2026-09-28", "content": "今天去散步了，心情轻松一些。" }
   ]
 }
 ```
+
+`consent` is required and must be `true`. The browser sends it only after the user explicitly confirms this selected set. `entries` must contain 1–20 selected snapshots; each `id` is 1–100 characters, `date` is a valid `YYYY-MM-DD` date, and `content` is 1–10,000 characters containing at least one non-whitespace character. Validation does not trim or rewrite diary text. Missing or false consent and invalid fields are rejected with the current FastAPI `422` validation response.
 
 ## Response
 

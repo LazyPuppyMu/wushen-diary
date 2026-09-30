@@ -1,7 +1,8 @@
 from datetime import date
 from enum import StrEnum
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Category(StrEnum):
@@ -29,16 +30,28 @@ class Confidence(StrEnum):
 class EntryInput(BaseModel):
     id: str = Field(min_length=1, max_length=100)
     date: date
-    content: str = Field(min_length=1, max_length=10000)
+    content: str = Field(
+        min_length=1,
+        max_length=10000,
+        description="Must contain at least one non-whitespace character.",
+    )
+
+    @field_validator("content")
+    @classmethod
+    def content_must_not_be_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("content must not be blank")
+        return value
 
 
 class OrganizeRequest(BaseModel):
+    consent: Literal[True]
     entries: list[EntryInput] = Field(min_length=1, max_length=20)
 
 
 class Evidence(BaseModel):
-    entry_id: str
-    quote: str
+    entry_id: str = Field(min_length=1, max_length=100)
+    quote: str = Field(min_length=1)
     start: int = Field(ge=0)
     end: int = Field(ge=1)
 

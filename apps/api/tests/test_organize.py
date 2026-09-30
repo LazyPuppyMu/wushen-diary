@@ -21,8 +21,9 @@ class FakeClient:
         return self.response
 
 
-def _request() -> dict[str, list[dict[str, str]]]:
+def _request() -> dict[str, object]:
     return {
+        "consent": True,
         "entries": [
             {
                 "id": "e1",
@@ -118,7 +119,9 @@ def test_organize_maps_timeout(monkeypatch) -> None:
 
 
 def test_organize_rejects_empty_entries() -> None:
-    response = client.post("/v1/organize", json={"entries": []})
+    response = client.post(
+        "/v1/organize", json={"consent": True, "entries": []}
+    )
 
     assert response.status_code == 422
 
@@ -126,6 +129,39 @@ def test_organize_rejects_empty_entries() -> None:
 def test_organize_rejects_entry_content_over_limit() -> None:
     request = _request()
     request["entries"][0]["content"] = "x" * 10001
+
+    response = client.post("/v1/organize", json=request)
+
+    assert response.status_code == 422
+
+
+def test_organize_requires_explicit_consent() -> None:
+    request = _request()
+    del request["consent"]
+
+    response = client.post("/v1/organize", json=request)
+
+    assert response.status_code == 422
+
+
+def test_organize_rejects_false_consent() -> None:
+    request = _request()
+    request["consent"] = False
+
+    response = client.post("/v1/organize", json=request)
+
+    assert response.status_code == 422
+
+
+def test_organize_rejects_blank_entry_content() -> None:
+    request = _request()
+    request["entries"] = [
+        {
+            "id": "e1",
+            "date": "2026-09-28",
+            "content": "   \n\t",
+        }
+    ]
 
     response = client.post("/v1/organize", json=request)
 
