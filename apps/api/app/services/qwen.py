@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -51,7 +52,7 @@ class QwenSettings:
             raise QwenConfigurationError(
                 "QWEN_TIMEOUT_SECONDS must be a positive number"
             ) from exc
-        if timeout_seconds <= 0:
+        if not math.isfinite(timeout_seconds) or timeout_seconds <= 0:
             raise QwenConfigurationError(
                 "QWEN_TIMEOUT_SECONDS must be a positive number"
             )

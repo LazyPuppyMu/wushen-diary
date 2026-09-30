@@ -34,6 +34,15 @@ def test_qwen_settings_reject_invalid_timeout(monkeypatch) -> None:
         QwenSettings.from_env()
 
 
+@pytest.mark.parametrize("timeout", ["nan", "inf", "-inf"])
+def test_qwen_settings_reject_non_finite_timeout(monkeypatch, timeout: str) -> None:
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "test-key")
+    monkeypatch.setenv("QWEN_TIMEOUT_SECONDS", timeout)
+
+    with pytest.raises(QwenConfigurationError, match="positive number"):
+        QwenSettings.from_env()
+
+
 @pytest.mark.anyio
 async def test_qwen_client_sends_configured_request_and_returns_content() -> None:
     requests: list[httpx.Request] = []
