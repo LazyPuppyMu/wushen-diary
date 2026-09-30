@@ -67,6 +67,11 @@ def main() -> None:
     assert any(
         len(entry["content"]) > 10000 for entry in over_limit["entries"]
     ), "over-limit-content must exceed the 10,000-character limit"
+    long_content = next((case for case in cases if case["id"] == "long-content"), None)
+    assert long_content is not None, "long-content case is required"
+    assert any(
+        9000 <= len(entry["content"]) <= 10000 for entry in long_content["entries"]
+    ), "long-content must be long while remaining within the 10,000-character limit"
     for case in cases:
         check_case(case)
 
