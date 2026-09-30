@@ -4,7 +4,7 @@ import json
 from collections.abc import Sequence
 from typing import Protocol
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.schemas.organize import (
     Category,
@@ -26,11 +26,15 @@ class AIResponseError(ValueError):
 
 
 class _AIEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     entry_id: str
     quote: str
 
 
 class _AIConclusion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     category: Category
     type: ConclusionType
     text: str = Field(min_length=1, max_length=500)
@@ -39,6 +43,8 @@ class _AIConclusion(BaseModel):
 
 
 class _AIResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     items: list[_AIConclusion]
 
 

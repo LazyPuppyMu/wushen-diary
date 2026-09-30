@@ -47,8 +47,6 @@ def _ai_response(quote: str = "心情轻松一些。") -> str:
                         {
                             "entry_id": "e1",
                             "quote": quote,
-                            "start": 999,
-                            "end": 1000,
                         }
                     ],
                 }
@@ -151,6 +149,44 @@ def test_organize_rejects_false_consent() -> None:
     response = client.post("/v1/organize", json=request)
 
     assert response.status_code == 422
+
+
+def test_organize_rejects_non_boolean_consent() -> None:
+    for value in (1, "true"):
+        request = _request()
+        request["consent"] = value
+
+        response = client.post("/v1/organize", json=request)
+
+        assert response.status_code == 422
+
+
+def test_organize_rejects_extra_ai_evidence_fields(monkeypatch) -> None:
+    payload = json.loads(_ai_response())
+    payload["items"][0]["evidence"][0]["start"] = 0
+    monkeypatch.setattr(
+        organize_route,
+        "get_qwen_client",
+        lambda: FakeClient(json.dumps(payload)),
+    )
+
+    response = client.post("/v1/organize", json=_request())
+
+    assert response.status_code == 502
+
+
+def test_organize_rejects_extra_ai_response_fields(monkeypatch) -> None:
+    payload = json.loads(_ai_response())
+    payload["unexpected"] = True
+    monkeypatch.setattr(
+        organize_route,
+        "get_qwen_client",
+        lambda: FakeClient(json.dumps(payload)),
+    )
+
+    response = client.post("/v1/organize", json=_request())
+
+    assert response.status_code == 502
 
 
 def test_organize_rejects_blank_entry_content() -> None:
