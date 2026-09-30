@@ -20,11 +20,11 @@
 - `entry_id` 不在本次请求中、quote 为空或 quote 不是对应原文的子串时，结果不能进入正常 API response。
 - API 不修改日记原文；浏览器仍需用本地记录复核返回的证据。
 
-## 待决风险：字符位置
+## 字符位置策略（已批准）
 
-Python `str.find()` 的返回值按 Unicode code point 计数，浏览器 JavaScript `slice()` 按 UTF-16 code unit 计数。包含 emoji 等非 BMP 字符时，服务端的 `start/end` 可能无法直接用于浏览器定位。
+Python `str.find()` 的返回值按 Unicode code point 计数，浏览器 JavaScript `slice()` 按 UTF-16 code unit 计数。包含 emoji 等非 BMP 字符时，服务端的 `start/end` 不能直接作为 JavaScript `slice()` 的索引。
 
-本任务不修改字段、不转换索引，也不增加哈希或额外存储。前端任务开始前，用户需要在保持接口简单和支持完整 Unicode 定位之间选择策略；选择结果才可以写入 `DECISIONS.md` 并更新本契约说明。
+已批准的策略是保持现有后端位置语义，不修改 API 字段、不转换服务端返回值，也不增加哈希或额外存储。前端按 Unicode code point 序列复核 `start/end` 对应的 quote，并在需要操作 DOM 或 JavaScript 字符串时自行映射为 UTF-16 位置。前端验收必须包含至少一个含 emoji 的 quote 用例。
 
 ## 变更流程
 

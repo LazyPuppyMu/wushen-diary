@@ -10,9 +10,8 @@
 | 2026-09-30 | 每条 AI 结论必须有精确 quote；后端计算位置并拒绝错误引用 | `apps/api/app/validators/evidence.py`、API 测试 | 已批准 |
 | 2026-09-30 | `dev` 用于集成，`main` 用于阶段验收后的可演示发布 | `docs/team-workflow.md`、根目录项目指令 | 已批准 |
 | 2026-09-30 | 本轮先补齐工程入口文档，再开始前端主线 | GitHub Issue #7、用户批准的设计记录 | 已批准 |
+| 2026-09-30 | 保持后端 `content.find()` 的 Unicode code point offset 语义；前端按 Unicode code point 复核和定位，并在 DOM 操作时映射为 UTF-16 位置 | 用户选择方案 A | 已批准 |
 
-## 待决事项
+## 后续验证要求
 
-### Unicode evidence offset
-
-Python code point offset 与浏览器 UTF-16 offset 的差异可能影响包含 emoji 的引用定位。这个问题会影响前后端公共契约，当前不自行决定。前端任务开始前需要用户选择兼容策略，并补充接口说明和测试证据。
+前端任务必须增加含 emoji 的引用复核测试，证明服务端返回的 code point offset 能被浏览器端正确转换并定位到原文。该测试通过前，不能把完整引用定位流程称为完成。
