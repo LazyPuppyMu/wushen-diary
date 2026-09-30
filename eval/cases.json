@@ -67,7 +67,7 @@
           {
             "category": "weight",
             "type": "fact",
-            "text": "记录了排练失误后的沮丧。",
+            "text": "感到沮丧。",
             "confidence": "high",
             "evidence": [
               {"entry_id": "entry-negative", "quote": "有点沮丧"}
@@ -232,7 +232,7 @@
           {
             "category": "joy",
             "type": "fact",
-            "text": "排练完成后感到开心。",
+            "text": "感到开心。",
             "confidence": "high",
             "evidence": [{"entry_id": "entry-mixed", "quote": "我很开心"}]
           },

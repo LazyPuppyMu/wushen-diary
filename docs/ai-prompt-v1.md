@@ -13,16 +13,18 @@
 {
   "items": [
     {
-      "category": "joy|fulfillment|reflection|improvement|gratitude|weight|murmur",
-      "type": "fact|inference",
+      "category": "joy",
+      "type": "fact",
       "text": "一句简短、克制的整理结果",
-      "confidence": "high|medium|low|insufficient",
+      "confidence": "high",
       "evidence": [
         {"entry_id": "输入中已有的 id", "quote": "输入原文中的精确连续片段"}
       ]
     }
   ]
 }
+
+其中 `category` 只能取 `joy`、`fulfillment`、`reflection`、`improvement`、`gratitude`、`weight`、`murmur`；`type` 只能取 `fact` 或 `inference`；`confidence` 只能取 `high`、`medium`、`low` 或 `insufficient`。示例中的值是单个实际枚举值，不要把竖线分隔的候选值原样输出。
 
 规则：
 1. 每条 item 必须同时包含 category、type、text、confidence、evidence。
